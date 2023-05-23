@@ -1,10 +1,23 @@
 from requests import get  # библиотека запросов на сайты
 from datetime import datetime, date  # библиотека для работы с датами и временем
+from apscheduler.schedulers.asyncio import AsyncIOScheduler  # используется для запуска функции check_bookings
 
-token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjRlNDZjYjU4MzRlNmE5OTQxM2YwYTU0OTJhYmQ2MGNjYjAzZjE1MTZjYzUzNmE2NjEzZDk1MmYxMGZjMWZjOWRlMjViMzNjMjg3YjY0ZmY1In0.eyJhdWQiOiJIdGp4UFRDX012NjZpOFYtb2JvRHV4Z05SM1VWTFhCQURfNkw3ZW9sMnZNIiwianRpIjoiNGU0NmNiNTgzNGU2YTk5NDEzZjBhNTQ5MmFiZDYwY2NiMDNmMTUxNmNjNTM2YTY2MTNkOTUyZjEwZmMxZmM5ZGUyNWIzM2MyODdiNjRmZjUiLCJpYXQiOjE2ODQ0OTU5NzUsIm5iZiI6MTY4NDQ5NTk3NSwiZXhwIjoxOTk5ODU1OTc1LjU1Mzg0OSwic3ViIjoiMTY0NSIsInNjb3BlIjpbImF1dGhlbnRpY2F0ZWQiLCJyZXN0X2FwaV9ib29raW5nX2J1c3kiXX0.j5fmTndMG5WbbJuPK7l923oARhjWf3XXTDnXEITVTHT1u-SZeIOWF7y3XHzNETFeoBystv6UdUKPTlvyUSmaI2svpk8QZ7Ld9xJ9_-LeDQHrcdU5TPaX5u57NnXx-TGPqdre7pH31m36Cs70btW7ptjoFDhkuYTZTFgpAaC8Ly3rTTxkB3wuz7YjsCl_8QxgAvWUZUqZGIHZZWkP9Vd0z6jWjI27YSSS5O3DzOY6i07yM00LthG7lVxDbQhIpUM8kPx6m9Ly7T8Xk_9siVYZPuusxLwuk43pQBAbKzPicFuc50yvORI-fIcYyRfhoclXK__7wAnzBpvh9Zz60Yxv9Q'
+# по расписанию
+
+token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImE0NTdmOWVlZGE0ZjBiYjFlMzVjZTNjNGJjZGM5ZWQxZWYyNGJlYjk0ZTc3NzMxMTE1YTQ1MDY0Zjk2OGExNzEzNjk3Yzk5OWE3MjIwY2IxIn0.eyJhdWQiOiJIdGp4UFRDX012NjZpOFYtb2JvRHV4Z05SM1VWTFhCQURfNkw3ZW9sMnZNIiwianRpIjoiYTQ1N2Y5ZWVkYTRmMGJiMWUzNWNlM2M0YmNkYzllZDFlZjI0YmViOTRlNzc3MzExMTVhNDUwNjRmOTY4YTE3MTM2OTdjOTk5YTcyMjBjYjEiLCJpYXQiOjE2ODQ4NjQwODQsIm5iZiI6MTY4NDg2NDA4NCwiZXhwIjoyMDAwMjI0MDg0LjEzODA4OSwic3ViIjoiMjA3NSIsInNjb3BlIjpbImF1dGhlbnRpY2F0ZWQiLCJyZXN0X2FwaV9ib29raW5nX2J1c3kiXX0.qtKnF49APsPFx6RKEP0f4IlNrKNUMLdIU7GLPNVVzaycPK8ZSVYE6g01ZQOIwUiP7qMkr0oBVhRuD0IPBhbnNOpZKWy0BXm87KVJ31U8kKWiDMSsuC4mSOvcmmTd8BDaryAaG4UsUC0BT3s3CaFH8U5DAxtgXyR5PkfcmJLajxJldYgN1dAWmm02Sf2fxoSPAYE3BcbKZDvW_8aDa4D-KCrE2L5zUWNrdcNsKFD81YZ2ApmDXr_mRPQnF7xnxQj65DvQuV1y3ypMp7m4Ix0YH-HIe2SwG3SFY6VmqLFJg2x7czBVAweGKuUsjx8G3KNzosWFm0U_mKsBCZYaU5JVfg'
 all_rooms = []
 
-# timestamp - количество секунд с момента 1970-01-01 00:00:00, т.н. Epoch Time
+bookings = []
+map_name_id = {'Io': '2868',
+               'Europa': '2869',
+               'Ganymede': '2870',
+               'Callisto': '2871',
+               'Jupiter': '2872',
+               '2536 (library)': '2873',
+               'Ceres': '2876'}
+
+
+# timestamp - количество секунд с момента 1970-01-01 00:00:00
 def convert_timestamp_to_datetime(timestamp):  # переводит секунды в нормальную дату со временем
     return datetime.fromtimestamp(int(timestamp))
 
@@ -13,18 +26,18 @@ def convert_timestamp_to_date(timestamp):  # переводит секунды �
     return datetime.fromtimestamp(int(timestamp)).date()
 
 
-def get_all_rooms():# функция получения списка всех комнат
+def get_all_rooms():  # функция получения списка всех комнат
     global all_rooms
     if not all_rooms:
-        url = 'https://physics.itmo.ru/ru[en]/rest/export/json/booking-resources?_format=json'
+        url = 'https://physics.itmo.ru/ru/rest/export/json/booking-resources?_format=json'
         headers = {
             'Authorization': f'Bearer {token}'  # заголовок для авторизации по токену
         }
 
-        response = get(url, headers=headers).json()  # обращение к сервису и конвертация ответа в json формат
+        response = get(url, headers=headers).json()
+        # обращение к сервису и конвертация ответа в json формат
         # а поскольку это питон, будет создан объект типа словарь
-        # TODO: отобрать только переговорки
-        all_rooms = ['Io', 'Europa', 'Ganymede', 'Callisto', 'Jupiter', '2536 (library)', 'Ceres']
+        all_rooms = [book for book in response if book['parent_target_id'] == '2812']
     return all_rooms
 
 
@@ -36,10 +49,10 @@ def get_all_bookings():  # функция получения всех брони
 
     response = get(url, headers=headers).json()
 
-    # отбор бронирований, начало которых сегодня либо позже
+    # отбор бронирований _переговорок_ (второе условие), начало которых сегодня либо позже
     bookings = [book for book in response
-                if convert_timestamp_to_date(book['booking_date_start'] >= date.today())]
-    # TODO: отобрать только переговорки
+                if convert_timestamp_to_date(book['booking_date_start']) >= date.today() and
+                book['booking_equip'] in map_name_id.values()]
     return bookings
 
 
@@ -56,12 +69,15 @@ def get_occupied_rooms(bookings):  # получение занятых _в да�
 
 
 def get_free_rooms(bookings):  # функция получения свободных комнат
-    rooms = set()  # здесь должны быть переговорки
+    rooms = set(get_all_rooms())
     # свободные переговорки = все переговорки - занятые переговорки
     # сеты здесь потому что так проще всего найти элементы, которые есть обоих множество
     return list(rooms - set(get_occupied_rooms(bookings)))
 
 
-if __name__ == '__main__':
-    r = get_all_rooms()
-    print(r)
+scheduler = AsyncIOScheduler()
+
+
+# запуск обновления бронирований по расписанию каждые пять минут с момента запуска бота
+async def on_startup(_):
+    scheduler.add_job(get_all_bookings, 'interval', minutes=5)

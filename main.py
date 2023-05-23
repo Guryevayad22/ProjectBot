@@ -2,23 +2,11 @@ from aiogram import Bot, types, executor  # библиотека для рабо
 from aiogram.dispatcher import Dispatcher
 from config import token
 from keyboards import markup, markup_rus, markup_en
-import asyncio  # библиотека для асинхронных действий, здесь нужна только для того, чтобы в фоне запустить
-# функцию check_bookings
-from utils import get_occupied_rooms, get_free_rooms, get_all_bookings, get_all_rooms
+
+from utils import get_occupied_rooms, get_free_rooms, get_all_rooms, scheduler, bookings, on_startup
 
 bot = Bot(token=token)
 dp = Dispatcher(bot)
-
-bookings = []
-
-
-# каждые пять минут обращается к сервису, получая список бронирований
-# сделано для того, чтобы бот не умирал при каждом сообщении, поскольку ответ от сервиса приходит секунд 20-30
-async def check_bookings():
-    global bookings
-    while True:
-        bookings = get_all_bookings()
-        await asyncio.sleep(300)
 
 
 @dp.message_handler(commands=['start'])
@@ -71,22 +59,12 @@ async def reply(message: types.Message):
     elif message.text == 'Menu':
         await message.answer('Menu', reply_markup=markup)
 
-    elif message.text == 'Обновления':
-        await check_bookings()
-
 
 @dp.message_handler(content_types=types.ContentType.TEXT)
 async def echo(message: types.Message):
     await message.answer(message.text)
 
 
-async def main():
-    # собственно запуск функции в фоне
-    # await asyncio.create_task(check_bookings())
-    await asyncio.sleep(1)
-
-
-
 if __name__ == '__main__':
-    # asyncio.run(main())
-    executor.start_polling(dp, skip_updates=True)
+    scheduler.start()
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
