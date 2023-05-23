@@ -46,6 +46,7 @@ async def reply(message: types.Message):
 
     elif message.text == 'Все':
         rooms = get_all_rooms()
+        # rooms = {'message':'Access token has been revoked'}
         answer = ', '.join(rooms) if rooms else 'Что-то пошло не так'
         await message.answer(answer, reply_markup=markup_rus)
 
