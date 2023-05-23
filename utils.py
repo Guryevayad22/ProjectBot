@@ -37,7 +37,7 @@ def get_all_rooms():  # функция получения списка всех 
         response = get(url, headers=headers).json()
         # обращение к сервису и конвертация ответа в json формат
         # а поскольку это питон, будет создан объект типа словарь
-        all_rooms = [book for book in response if book['parent_target_id'] == '2812']
+        all_rooms = [book['name'] for book in response if book['parent_target_id'] == '2812']
     return all_rooms
 
 
