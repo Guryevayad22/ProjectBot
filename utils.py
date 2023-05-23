@@ -80,4 +80,5 @@ scheduler = AsyncIOScheduler()
 
 # запуск обновления бронирований по расписанию каждые пять минут с момента запуска бота
 async def on_startup(_):
+    get_all_bookings()#кидает запрос сразу при запуске
     scheduler.add_job(get_all_bookings, 'interval', minutes=5)
