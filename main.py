@@ -70,6 +70,9 @@ async def reply(message: types.Message):
     elif message.text == 'Menu':
         await message.answer('Menu', reply_markup=markup)
 
+    elif message.text == 'Обновления':
+        await check_bookings()
+
 
 @dp.message_handler(content_types=types.ContentType.TEXT)
 async def echo(message: types.Message):
@@ -78,9 +81,11 @@ async def echo(message: types.Message):
 
 async def main():
     # собственно запуск функции в фоне
-    await asyncio.create_task(check_bookings())
-    executor.start_polling(dp, skip_updates=True)
+    # await asyncio.create_task(check_bookings())
+    await asyncio.sleep(1)
+
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    # asyncio.run(main())
+    executor.start_polling(dp, skip_updates=True)
