@@ -8,13 +8,15 @@ markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).row(b
 btn_occupied_rus = KeyboardButton('Занятые')
 btn_free_rus = KeyboardButton('Свободные')
 btn_all_rus = KeyboardButton('Все')
+btn_menu_rus = KeyboardButton('Меню')
 
 markup_rus = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-markup_rus.row(btn_occupied_rus, btn_free_rus, btn_all_rus)
+markup_rus.row(btn_occupied_rus, btn_free_rus, btn_all_rus, btn_menu_rus)
 
 btn_occupied_en = KeyboardButton('Occupied')
 btn_free_en = KeyboardButton('Free')
 btn_all_en = KeyboardButton('All')
+btn_menu_en = KeyboardButton('Menu')
 
 markup_en = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-markup_en.row(btn_occupied_en, btn_free_en, btn_all_en)
+markup_en.row(btn_occupied_en, btn_free_en, btn_all_en, btn_menu_en)
