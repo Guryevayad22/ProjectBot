@@ -3,7 +3,7 @@ from aiogram.dispatcher import Dispatcher
 from config import token
 from keyboards import markup, markup_rus, markup_en
 
-from utils import get_occupied_rooms, get_free_rooms, get_all_rooms, scheduler, bookings, on_startup
+from utils import get_occupied_rooms, get_free_rooms, get_all_rooms, scheduler, on_startup, get_bookings
 
 bot = Bot(token=token)
 dp = Dispatcher(bot)
@@ -23,41 +23,40 @@ async def reply(message: types.Message):
         await message.answer('English language', reply_markup=markup_en)
 
     elif message.text == 'Занятые':
-        rooms = get_occupied_rooms(bookings)
-        answer = ', '.join(rooms) if rooms else 'Все переговорки свободны'
+        rooms = get_occupied_rooms(get_bookings())
+        answer = '\n'.join(rooms) if rooms else 'Все переговорки свободны'
         await message.answer(answer, reply_markup=markup_rus)
 
     elif message.text == 'Свободные':
-        rooms = get_free_rooms(bookings)
-        answer = ', '.join(rooms) if rooms else 'Все переговорки заняты'
+        rooms = get_free_rooms(get_bookings())
+        answer = '\n'.join(rooms) if rooms else 'Все переговорки заняты'
         await message.answer(answer, reply_markup=markup_rus)
 
     elif message.text == 'Все':
         rooms = get_all_rooms()
-        # rooms = {'message':'Access token has been revoked'}
-        answer = ', '.join(rooms) if rooms else 'Что-то пошло не так'
+        answer = '\n'.join(rooms) if rooms else 'Что-то пошло не так'
         await message.answer(answer, reply_markup=markup_rus)
 
-    elif message.text == 'Меню':
-        await message.answer('Меню', reply_markup=markup)
+    elif message.text == 'Выбрать язык':
+        await message.answer('Выбрать язык', reply_markup=markup)
 
     elif message.text == 'Occupied':
-        rooms = get_occupied_rooms(bookings)
-        answer = ', '.join(rooms) if rooms else 'All meeting rooms are free'
+        rooms = get_occupied_rooms(get_bookings())
+        answer = '\n'.join(rooms) if rooms else 'All meeting rooms are free'
         await message.answer(answer, reply_markup=markup_en)
 
     elif message.text == 'Free':
-        rooms = get_free_rooms(bookings)
-        answer = ', '.join(rooms) if rooms else 'All meeting rooms are occupied'
+        rooms = get_free_rooms(get_bookings())
+        answer = '\n'.join(rooms) if rooms else 'All meeting rooms are occupied'
         await message.answer(answer, reply_markup=markup_en)
 
     elif message.text == 'All':
         rooms = get_all_rooms()
-        answer = ', '.join(rooms) if rooms else 'Something went wrong'
+        answer = '\n'.join(rooms) if rooms else 'Something went wrong'
         await message.answer(answer, reply_markup=markup_en)
 
-    elif message.text == 'Menu':
-        await message.answer('Menu', reply_markup=markup)
+    elif message.text == 'Choose language':
+        await message.answer('Choose language', reply_markup=markup)
 
 
 @dp.message_handler(content_types=types.ContentType.TEXT)
