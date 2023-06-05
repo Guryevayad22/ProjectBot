@@ -42,7 +42,10 @@ def get_all_rooms():  # функция получения списка всех 
 
 
 def get_all_bookings():  # функция получения всех бронирований
-    url = 'https://physics.itmo.ru/ru/rest/export/json/booking-busy?_format=json'
+    global bookings
+    url = f'https://physics.itmo.ru/ru/rest/export/json/booking-busy' \
+          f'?booking_date_start_value_op=>=&booking_date_start_value[value]={date.today()}' \
+          f'&_format=json'
     headers = {
         'Authorization': f'Bearer {token}'
     }
