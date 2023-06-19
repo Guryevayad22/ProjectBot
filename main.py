@@ -176,8 +176,9 @@ async def handle(message: types.Message):
     await message.answer('Choose language', reply_markup=markup)
 
 
-@dp.message_handler(types.ContentType.ANY)
+@dp.message_handler(types.ContentType.ANY, state='*')
 async def handle(message: types.Message):
+    await Choose.default.set()
     await message.answer('Я такое не ем', reply_markup=markup)
 
 
