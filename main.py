@@ -82,19 +82,19 @@ async def search_free(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(Text(equals='Русский'), state=Choose.default)
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await Choose.default.set()
     await message.answer('Русский язык', reply_markup=markup_rus)
 
 
 @dp.message_handler(Text(equals='English'), state=Choose.default)
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await Choose.default.set()
     await message.answer('English language', reply_markup=markup_en)
 
 
 @dp.message_handler(Text(equals='Занятые (сейчас)'), state=Choose.default)
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await Choose.default.set()
     rooms = get_occupied_rooms(get_bookings())
     answer = '\n'.join(rooms) if rooms else 'Все переговорки свободны'
@@ -102,13 +102,13 @@ async def start(message: types.Message):
 
 
 @dp.message_handler(Text(equals='Занятые (в указанное время)'), state=Choose.default)
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await Choose.occupied_rus.set()
     await message.answer('Укажите время в формате ЧЧ:ММ')
 
 
 @dp.message_handler(Text(equals='Свободные (сейчас)'), state=Choose.default)
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await Choose.default.set()
     rooms = get_free_rooms(get_bookings())
     answer = '\n'.join(rooms) if rooms else 'Все переговорки заняты'
@@ -116,13 +116,13 @@ async def start(message: types.Message):
 
 
 @dp.message_handler(Text(equals='Свободные (в указанное время)'), state=Choose.default)
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await Choose.free_rus.set()
     await message.answer('Укажите время в формате ЧЧ:ММ')
 
 
 @dp.message_handler(Text(equals='Все'), state=Choose.default)
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await Choose.default.set()
     rooms = get_all_rooms()
     answer = '\n'.join(rooms) if rooms else 'Что-то пошло не так'
@@ -130,13 +130,13 @@ async def start(message: types.Message):
 
 
 @dp.message_handler(Text(equals='Выбрать язык'), state='*')
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await Choose.default.set()
     await message.answer('Выбрать язык', reply_markup=markup)
 
 
 @dp.message_handler(Text(equals='Occupied (now)'), state=Choose.default)
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await Choose.default.set()
     rooms = get_occupied_rooms(get_bookings())
     answer = '\n'.join(rooms) if rooms else 'All meeting rooms are free'
@@ -144,13 +144,13 @@ async def start(message: types.Message):
 
 
 @dp.message_handler(Text(equals='Occupied (at specified time)'), state=Choose.default)
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await Choose.occupied_en.set()
     await message.answer('Enter time in HH:MM format')
 
 
 @dp.message_handler(Text(equals='Free (now)'), state=Choose.default)
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await Choose.default.set()
     rooms = get_free_rooms(get_bookings())
     answer = '\n'.join(rooms) if rooms else 'All meeting rooms are occupied'
@@ -158,13 +158,13 @@ async def start(message: types.Message):
 
 
 @dp.message_handler(Text(equals='Free (at specified time)'), state=Choose.default)
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await Choose.free_en.set()
     await message.answer('Enter time in HH:MM format')
 
 
 @dp.message_handler(Text(equals='All'), state=Choose.default)
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await Choose.default.set()
     rooms = get_all_rooms()
     answer = '\n'.join(rooms) if rooms else 'Something went wrong'
@@ -172,7 +172,7 @@ async def start(message: types.Message):
 
 
 @dp.message_handler(Text(equals='Choose language'), state=Choose.default)
-async def start(message: types.Message):
+async def handle(message: types.Message):
     await message.answer('Choose language', reply_markup=markup)
 
 
