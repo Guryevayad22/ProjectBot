@@ -1,8 +1,8 @@
 from requests import get  # библиотека запросов на сайты
 from datetime import datetime, date  # библиотека для работы с датами и временем
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # используется для запуска функции check_bookings
-from config import access_token
 # по расписанию
+from config import access_token
 
 all_rooms = []
 
@@ -73,24 +73,30 @@ def get_all_bookings():  # функция получения всех брони
                 book['booking_equip'] in map_name_id.values()]
 
 
-def get_occupied_rooms(bookings):  # получение занятых _в данный момент_ комнат
+def get_occupied_rooms(bookings, search_time=datetime.now()):  # получение занятых _в данный момент_ комнат
     rooms = []
     for booking in bookings:
         start_datetime = convert_timestamp_to_datetime(booking['booking_date_start'])
         end_datetime = convert_timestamp_to_datetime(booking['booking_date_end'])
-        curr_datetime = datetime.now()
+        curr_datetime = search_time
         if start_datetime <= curr_datetime <= end_datetime:
             name = map_id_name[booking['booking_equip']]
             rooms.append(name)
 
-    return sorted(rooms)
+    return sorted(set(rooms))
 
 
-def get_free_rooms(bookings):  # функция получения свободных комнат
-    rooms = set(get_all_rooms())
-    # свободные переговорки = все переговорки - занятые переговорки
-    # сеты здесь потому что так проще всего найти элементы, которые есть обоих множество
-    return sorted(list(rooms - set(get_occupied_rooms(bookings))))
+def get_free_rooms(bookings, search_time=datetime.now()):  # функция получения свободных комнат
+    rooms = []
+    for booking in bookings:
+        start_datetime = convert_timestamp_to_datetime(booking['booking_date_start'])
+        end_datetime = convert_timestamp_to_datetime(booking['booking_date_end'])
+        curr_datetime = search_time
+        if not start_datetime <= curr_datetime <= end_datetime:
+            name = map_id_name[booking['booking_equip']]
+            rooms.append(name)
+
+    return sorted(set(rooms))
 
 
 def get_bookings():
@@ -104,3 +110,12 @@ scheduler = AsyncIOScheduler()
 async def on_startup(_):
     get_all_bookings()  # кидает запрос сразу при запуске
     scheduler.add_job(get_all_bookings, 'interval', minutes=5)
+
+
+def test():
+    url = f'https://physics.itmo.ru/ru/rest/export/json/booking-busy'
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+
+    print(get(url, headers=headers))
