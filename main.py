@@ -176,6 +176,11 @@ async def handle(message: types.Message):
     await message.answer('Choose language', reply_markup=markup)
 
 
+@dp.message_handler(types.ContentType.ANY)
+async def handle(message: types.Message):
+    await message.answer('Я такое не ем', reply_markup=markup)
+
+
 if __name__ == '__main__':
     scheduler.start()
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
