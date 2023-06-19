@@ -75,8 +75,8 @@ async def search_free(message: types.Message, state: FSMContext):
         search_time = datetime.combine(date_, time_)
         rooms = get_free_rooms(get_bookings(), search_time=search_time)
         answer = '\n'.join(rooms) if rooms else answer_text
-        await message.answer(answer, reply_markup=reply_markup)
         await Choose.default.set()
+        await message.answer(answer, reply_markup=reply_markup)
     elif not match and check_match:
         await message.answer(time_answer, reply_markup=reply_markup)
 
